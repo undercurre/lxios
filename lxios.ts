@@ -1,5 +1,6 @@
+import dispatchRequest from "./dispatchRequest";
 import InterceptorManager from "./interceptorManager";
-import { merge, mergeConfig, forEachDeep } from "./utils";
+import { merge, mergeConfig } from "./utils";
 
 class Lxios {
   // 仅仅是保存传入的config,
@@ -45,89 +46,43 @@ class Lxios {
       headers && merge(headers[config.method], headers.common);
 
     headers &&
-      forEachDeep(
-        ["delete", "get", "head", "post", "put", "patch", "common"],
-        (method) => {
-          delete headers[method];
-        }
+      ["delete", "get", "head", "post", "put", "patch", "common"].forEach(
+        (item) => delete headers[item]
       );
 
     // 优先使用headers下配置，再使用headers.common和headers[get,post]的配置
-    config.headers = AxiosHeaders.concat(contextHeaders, headers);
+    config.headers = contextHeaders;
 
     // 请求拦截器链
-    const requestInterceptorChain = [];
-    // 记录是否使用同步的方式调用，我们配置拦截器的时候，默认是false，也就是异步
-    let synchronousRequestInterceptors = true;
+    const requestInterceptorChain: Array<Interceptor> = [];
 
-    this.interceptors.request.forEach(function unshiftRequestInterceptors(
-      interceptor
-    ) {
-      // 如果配置了runWhen函数，那么会先执行runWhen，如果为true，才会添加该拦截器
-      if (
-        typeof interceptor.runWhen === "function" &&
-        interceptor.runWhen(config) === false
-      ) {
-        return;
-      }
-      synchronousRequestInterceptors =
-        synchronousRequestInterceptors && interceptor.synchronous;
-      // unshift说明后传入的请求拦截器先执行，一次放入两个，分别是fulfilled和rejected
-      requestInterceptorChain.unshift(
-        interceptor.fulfilled,
-        interceptor.rejected
-      );
+    this.interceptors.request.forEach((interceptor: Interceptor) => {
+      requestInterceptorChain.unshift(interceptor);
     });
 
     // 响应拦截器链
-    const responseInterceptorChain = [];
-    this.interceptors.response.forEach(function pushResponseInterceptors(
-      interceptor
-    ) {
-      // push说明先传入的响应拦截器先执行
-      responseInterceptorChain.push(
-        interceptor.fulfilled,
-        interceptor.rejected
-      );
+    const responseInterceptorChain: Array<Interceptor> = [];
+    this.interceptors.response.forEach((interceptor: Interceptor) => {
+      responseInterceptorChain.push(interceptor);
     });
 
     let promise;
-    let i = 0;
+    let i;
     let len;
 
-    // 默认是异步执行，也就是一个执行完再执行下一个
-    if (!synchronousRequestInterceptors) {
-      //dispatchRequest是真正的发送请求
-      const chain = [dispatchRequest.bind(this), undefined];
-      // 前面插入请求拦截器
-      chain.unshift.apply(chain, requestInterceptorChain);
-      // 后面插入响应拦截器
-      chain.push.apply(chain, responseInterceptorChain);
-      len = chain.length;
-
-      promise = Promise.resolve(config);
-      // 依次执行
-      while (i < len) {
-        promise = promise.then(chain[i++], chain[i++]);
-      }
-
-      return promise;
-    }
-
+    i= 0;
     len = requestInterceptorChain.length;
 
     let newConfig = config;
 
-    i = 0;
-
     // 同步执行，请求拦截器
     while (i < len) {
-      const onFulfilled = requestInterceptorChain[i++];
-      const onRejected = requestInterceptorChain[i++];
+      const curInterceptor = requestInterceptorChain[i++];
       try {
-        newConfig = onFulfilled(newConfig);
+        if (curInterceptor.fulfilled)
+          newConfig = curInterceptor.fulfilled(newConfig);
       } catch (error) {
-        onRejected.call(this, error);
+        if (curInterceptor.rejected) curInterceptor.rejected.call(this, error);
         break;
       }
     }
@@ -145,8 +100,8 @@ class Lxios {
     // 返回有异常可以继续走下去
     while (i < len) {
       promise = promise.then(
-        responseInterceptorChain[i++],
-        responseInterceptorChain[i++]
+        responseInterceptorChain[i++].fulfilled,
+        responseInterceptorChain[i++].rejected
       );
     }
 
