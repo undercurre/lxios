@@ -1,4 +1,7 @@
 class CancelToken {
+  subscribe(onCanceled: any) {
+    throw new Error("Method not implemented.");
+  }
   private cancelAction: ((reason: string) => void) | null = null;
   public promise: Promise<string>;
   // promise是为了能够做取消后处理

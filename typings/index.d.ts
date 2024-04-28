@@ -3,6 +3,8 @@ declare type LxiosInstanceConfig = {
   url?: string;
   timeOut: number;
   headers: Record<string, any>;
+  cancelToken: CancelToken | null;
+  adapter: "xhr" | "http";
   [key: string]: any;
 };
 
