@@ -1,5 +1,5 @@
-import httpAdapter from "./http.js";
-import xhrAdapter from "./xhr.js";
+import httpAdapter from "./http";
+import xhrAdapter from "./xhr";
 
 const knownAdapters = {
   http: httpAdapter,

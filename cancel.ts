@@ -3,18 +3,21 @@ class CancelToken {
     throw new Error("Method not implemented.");
   }
   private cancelAction: ((reason: string) => void) | null = null;
+  // 操作被取消后，任何依赖于 CancelToken.promise 的处理逻辑都可以通过 .then() 或 .catch() 处理这个取消事件和提供的取消原因。
   public promise: Promise<string>;
   // promise是为了能够做取消后处理
 
+  // 当 CancelToken 被实例化时，构造函数接收一个执行器函数，执行器函数接收一个取消函数（我们的 cancel）作为参数。
   constructor(executor: (cancel: (reason: string) => void) => void) {
     if (typeof executor !== "function") {
       throw new TypeError("Executor must be a function.");
     }
-
+    // 这会触发与 CancelToken 关联的 Promise 被解决（resolve），其值就是传递的取消原因。
     this.promise = new Promise<string>((resolve) => {
       this.cancelAction = resolve;
     });
 
+    // 在执行器函数内部，该取消函数被赋值给 this.cancelAction，这样它就可以在外部被调用。
     executor((reason: string) => {
       if (this.cancelAction) {
         this.cancelAction(reason);
@@ -23,6 +26,8 @@ class CancelToken {
     });
   }
 
+  // 提供了一个默认的取消原因，这增加了使用的便利性，允许调用者在不指定具体原因的情况下快速取消操作。
+  // 如果 this.cancelAction 已被设置（也就是说，CancelToken 已经被正确初始化），则执行这个函数，并传递取消原因。
   cancel(reason: string = "Operation canceled by the user"): void {
     if (this.cancelAction) {
       this.cancelAction(reason);
