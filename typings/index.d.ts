@@ -1,12 +1,13 @@
 declare type LxiosInstanceConfig = {
-  baseURL: string;
-  url?: string;
-  timeOut: number;
-  headers: Record<string, any>;
-  cancelToken: CancelToken | null;
-  adapter: "xhr" | "http";
+  url: string;
+  method: string;
+  data: Record<string, any>;
   params: Record<string, any>;
-  [key: string]: any;
+  adapter: any;
+  transformRequest: Array<(data: any, headers: Record<string, any>) => any>;
+  transformResponse: Array<() => any>;
+  cancelToken: CancelToken | null;
+  validateStatus: any;
 };
 
 type onFulfilled<V> = (value: V) => V | Promise<V>;

@@ -12,11 +12,17 @@ const xhrAdapter = (config: LxiosInstanceConfig): Promise<LxiosResponse> => {
       const responseHeaders = xhr
         .getAllResponseHeaders()
         .split("\r\n")
-        .reduce((acc, current) => {
-          const [key, value] = current.split(": ");
-          if (key) acc[key] = value;
-          return acc;
-        }, {} as Record<string, string>);
+        .reduce(
+          (
+            acc: { [x: string]: any },
+            current: { split: (arg0: string) => [any, any] }
+          ) => {
+            const [key, value] = current.split(": ");
+            if (key) acc[key] = value;
+            return acc;
+          },
+          {} as Record<string, string>
+        );
       resolve({
         data: JSON.parse(xhr.responseText),
         status: xhr.status,

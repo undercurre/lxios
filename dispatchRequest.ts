@@ -1,4 +1,5 @@
-import adapters from "./adapters";
+import transformData from "./helper/transformData";
+import defaults from "./default";
 
 // 这个函数的作用就是用来判断请求是否被取消，
 // 如果取消的话，则直接抛出异常，
@@ -10,6 +11,17 @@ function throwIfCancellationRequested(config: LxiosInstanceConfig) {
 
 // 发送请求核心函数
 export default function dispatchRequest(config: LxiosInstanceConfig) {
+  // 初始化headers
+  config.headers = config.headers || {};
+
+  // 调用转换函数处理数据
+  config.data = transformData.call(
+    config,
+    config.data,
+    config.headers,
+    config.transformRequest
+  );
+
   // 刚开始请求前判断一次是否已被取消
   throwIfCancellationRequested(config);
 
@@ -21,7 +33,7 @@ export default function dispatchRequest(config: LxiosInstanceConfig) {
   // 获取适配器，如果是浏览器环境获取xhr，
   // 如果是Node环境，获取http
   // 适配器就是最终用来发送请求的东西
-  const adapter = adapters[config.adapter];
+  const adapter = config.adapter || defaults.adapter;
 
   // 请求是使用适配器执行config
   return adapter(config).then(

@@ -1,6 +1,6 @@
 import dispatchRequest from "./dispatchRequest";
 import InterceptorManager from "./interceptorManager";
-import { merge, mergeConfig } from "./utils";
+import mergeConfig from "./helper/mergeConfig";
 
 class Lxios {
   // 仅仅是保存传入的config,
@@ -33,25 +33,12 @@ class Lxios {
     // 合并配置
     config = mergeConfig(this.defaults, config);
 
-    const { headers } = config;
-
     // 默认get请求
     config.method = (
       config.method ||
       this.defaults.method ||
       "get"
     ).toLowerCase();
-
-    let contextHeaders =
-      headers && merge(headers[config.method], headers.common);
-
-    headers &&
-      ["delete", "get", "head", "post", "put", "patch", "common"].forEach(
-        (item) => delete headers[item]
-      );
-
-    // 优先使用headers下配置，再使用headers.common和headers[get,post]的配置
-    config.headers = contextHeaders;
 
     // 请求拦截器链
     const requestInterceptorChain: Array<Interceptor> = [];
@@ -70,7 +57,7 @@ class Lxios {
     let i;
     let len;
 
-    i= 0;
+    i = 0;
     len = requestInterceptorChain.length;
 
     let newConfig = config;
