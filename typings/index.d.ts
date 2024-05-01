@@ -1,5 +1,5 @@
 declare type LxiosRequestConfig = {
-  url: string;
+  url?: string;
   method?: Method;
   data?: any;
   params?: any;

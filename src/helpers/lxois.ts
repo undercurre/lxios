@@ -49,11 +49,11 @@ export default class Lxios {
       chain.push(interceptor);
     });
 
-    let promise = Promise.resolve(config);
+    let promise = Promise.resolve(config) as LxiosPromise;
 
     while (chain.length) {
       const { resolved, rejected } = chain.shift()!;
-      promise = promise.then(resolved, rejected);
+      promise = promise.then(resolved, rejected) as LxiosPromise;
     }
 
     return promise;

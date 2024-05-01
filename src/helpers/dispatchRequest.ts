@@ -19,7 +19,7 @@ function processConfig(config: LxiosRequestConfig): void {
 
 function transformUrl(config: LxiosRequestConfig): string {
   const { url, params } = config;
-  return bulidURL(url, params);
+  return bulidURL(url!, params);
 }
 
 function transformRequestData(config: LxiosRequestConfig): any {
