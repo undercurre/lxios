@@ -9,5 +9,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["*.ts", ".d.ts", "typings/index.d.ts"]
+  "include": ["*.ts", "*.d.ts", "./src/**/*.ts", "./typings/*.d.ts"]
 }
