@@ -17,7 +17,7 @@ export function mergeConfig(
   config2?: LxiosRequestConfig
 ): LxiosRequestConfig {
   if (!config2) {
-    config2 = {};
+    config2 = {} as LxiosRequestConfig;
   }
 
   const config = Object.create(null);
@@ -77,4 +77,11 @@ export function deepMerge(...objs: any[]): any {
   });
 
   return result;
+}
+
+export function extend<T, U>(target: T, source: U): T & U {
+  Object.getOwnPropertyNames(source).forEach((key) => {
+    (target as any)[key] = (source as any)[key];
+  });
+  return target as T & U;
 }

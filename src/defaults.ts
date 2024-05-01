@@ -1,4 +1,6 @@
 const defaults: LxiosRequestConfig = {
+  url: "/",
+
   method: "get",
 
   timeout: 0,

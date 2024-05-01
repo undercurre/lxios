@@ -1,6 +1,6 @@
 declare type LxiosRequestConfig = {
   url: string;
-  method?: string;
+  method?: Method;
   data?: any;
   params?: any;
   headers?: any;
@@ -83,6 +83,7 @@ declare interface LxiosTransformer {
 }
 
 declare interface LxiosStatic extends LxiosInstance {
+  (config: LxiosRequestConfig): LxiosInstance;
   create(config?: LxiosRequestConfig): LxiosInstance;
 
   CancelToken: CancelTokenStatic;
@@ -90,13 +91,18 @@ declare interface LxiosStatic extends LxiosInstance {
   isCancel: (value: any) => boolean;
 }
 
+interface Cancel {
+  message?: string;
+}
+
 declare interface CancelToken {
-  promise: Promise<string>;
-  reason?: string;
+  promise: Promise<Cancel>;
+  reason?: Cancel;
+  throwIfRequested(): void;
 }
 
 declare interface Canceler {
-  (message?: string): void;
+  (message?: string, config?: AxiosRequestConfig, request?: any): void;
 }
 
 declare interface CancelExecutor {

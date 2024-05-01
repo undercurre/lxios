@@ -23,14 +23,15 @@ export default class Lxios {
     };
   }
 
-  request(url: any, config?: any): LxiosPromise {
-    if (typeof url === "string") {
-      if (!config) {
-        config = {};
-      }
-      config.url = url;
+  request(
+    configOrUrl: string | LxiosRequestConfig,
+    config?: LxiosRequestConfig
+  ): LxiosPromise {
+    if (typeof configOrUrl === "string") {
+      if (config) config.url = configOrUrl;
+      config = {} as LxiosRequestConfig;
     } else {
-      config = url;
+      config = configOrUrl;
     }
 
     const chain: PromiseChain[] = [
