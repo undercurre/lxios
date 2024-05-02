@@ -79,8 +79,18 @@ export function deepMerge(...objs: any[]): any {
 }
 
 export function extend<T, U>(target: T, source: U): T & U {
-  Object.getOwnPropertyNames(source).forEach((key) => {
+  let properties = new Set<string>();
+  let currentObj: any = source;
+
+  do {
+    Object.getOwnPropertyNames(currentObj).forEach((item) => {
+      properties.add(item);
+    });
+  } while ((currentObj = Object.getPrototypeOf(currentObj)));
+
+  Array.from(properties).forEach((key) => {
     (target as any)[key] = (source as any)[key];
   });
+
   return target as T & U;
 }

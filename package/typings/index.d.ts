@@ -12,6 +12,36 @@ declare type LxiosRequestConfig = {
   [propName: string]: any;
 };
 
+declare interface Lxios {
+  request<T = any>(config: LxiosRequestConfig): LxiosPromise<T>;
+
+  get<T = any>(url: string, config?: LxiosRequestConfig): LxiosPromise<T>;
+
+  delete<T = any>(url: string, config?: LxiosRequestConfig): LxiosPromise<T>;
+
+  head<T = any>(url: string, config?: LxiosRequestConfig): LxiosPromise<T>;
+
+  options<T = any>(url: string, config?: LxiosRequestConfig): LxiosPromise<T>;
+
+  post<T = any>(
+    url: string,
+    data?: any,
+    config?: LxiosRequestConfig
+  ): LxiosPromise<T>;
+
+  put<T = any>(
+    url: string,
+    data?: any,
+    config?: LxiosRequestConfig
+  ): LxiosPromise<T>;
+
+  patch<T = any>(
+    url: string,
+    data?: any,
+    config?: LxiosRequestConfig
+  ): LxiosPromise<T>;
+}
+
 function defaultStrat(val1: any, val2: any): any {
   return typeof val2 !== "undefined" ? val2 : val1;
 }
@@ -82,6 +112,11 @@ declare interface LxiosTransformer {
   (data: any, headers?: any): any;
 }
 
+declare interface LxiosInstance extends Lxios {
+  <T = any>(config: LxiosRequestConfig): LxiosPromise<T>;
+  <T = any>(url: string, config?: LxiosRequestConfig): LxiosPromise<T>;
+}
+
 declare interface LxiosStatic extends LxiosInstance {
   (config: LxiosRequestConfig): LxiosInstance;
   create(config?: LxiosRequestConfig): LxiosInstance;
@@ -102,7 +137,7 @@ declare interface CancelToken {
 }
 
 declare interface Canceler {
-  (message?: string, config?: AxiosRequestConfig, request?: any): void;
+  (message?: string, config?: LxiosRequestConfig, request?: any): void;
 }
 
 declare interface CancelExecutor {

@@ -26,16 +26,15 @@ export default function xhr(config: LxiosRequestConfig): LxiosPromise {
       });
     }
 
-    request.ontimeout = function handleTimeout() {
-      reject(
-        createError(
-          `Timeout of ${config.timeout} ms exceeded`,
-          config,
-          "ECONNABORTED",
-          request
-        )
-      );
-    };
+    if (headers) {
+      Object.keys(headers).forEach((name) => {
+        if (data === null && name.toLowerCase() === "content-type") {
+          delete headers[name];
+        } else {
+          request.setRequestHeader(name, headers[name]);
+        }
+      });
+    }
 
     if (responseType) {
       request.responseType = responseType;
@@ -85,16 +84,19 @@ export default function xhr(config: LxiosRequestConfig): LxiosPromise {
       }
     }
 
-    Object.keys(headers).forEach((name) => {
-      if (data === null && name.toLowerCase() === "content-type") {
-        delete headers[name];
-      } else {
-        request.setRequestHeader(name, headers[name]);
-      }
-    });
-
     request.onerror = function handleError() {
       reject(createError("Network Error", config, null, request));
+    };
+
+    request.ontimeout = function handleTimeout() {
+      reject(
+        createError(
+          `Timeout of ${config.timeout} ms exceeded`,
+          config,
+          "ECONNABORTED",
+          request
+        )
+      );
     };
 
     request.send(data);
